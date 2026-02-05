@@ -270,6 +270,9 @@ export default function AboutPage() {
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4"
+              onClick={() =>
+                window.open("https://www.notion.so/UAV-PROPELLER-PERFORMANCE-ANALYSIS-PROJECT-DASHBOARD-2afd12fcb09480f5bf10edc3107777cd?source=copy_link", "_blank")
+              }
             >
               <FileText className="w-4 h-4 mr-2 inline" />
               View Detailed Project Timeline (Notion)

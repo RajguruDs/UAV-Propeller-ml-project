@@ -26,55 +26,73 @@ export default function PredictionPage() {
 
   /* ---------------- Drone Recommendation Logic ---------------- */
 
-  const getDroneRecommendation = (ct, cp, efficiency) => {
-    if (efficiency >= 0.7 && cp <= 0.05) {
+  const getDroneRecommendation = (ct, cp, efficiency, pitch, advRatio) => {
+
+    // 1. Racing – speed dominates (very specific)
+    if (advRatio >= 0.7 && pitch >= 6.5) {
       return {
-        title: "Surveillance Drone",
-        icon: Video,
-        color: "from-emerald-500 to-green-600",
+        title: "Racing / Performance Drone",
+        icon: Zap,
+        color: "from-red-500 to-orange-600",
         description:
-          "High efficiency and low power consumption make this propeller suitable for long-endurance surveillance missions.",
+          "High advance ratio and aggressive pitch indicate a speed-focused racing configuration.",
       };
     }
 
-    if (ct >= 0.09 && efficiency >= 0.6 && cp <= 0.06) {
+    // 2. Agriculture – thrust dominates at low speed
+    if (ct >= 0.085 && advRatio <= 0.5) {
       return {
         title: "Agriculture Drone",
         icon: Tractor,
         color: "from-lime-500 to-green-700",
         description:
-          "High thrust capability with stable efficiency, ideal for lifting spray payloads in agricultural applications.",
+          "High thrust at lower advance ratios makes this configuration suitable for agricultural payload lifting.",
       };
     }
 
-    if (ct >= 0.09 && cp > 0.06) {
+    // 3. Delivery – thrust + power consumption dominates
+    if (ct >= 0.085 && cp >= 0.06) {
       return {
         title: "Delivery Drone",
         icon: Package,
         color: "from-blue-500 to-indigo-600",
         description:
-          "Strong thrust output with higher power usage, suitable for payload transport and delivery drones.",
+          "High thrust combined with higher power usage is suitable for payload delivery operations.",
       };
     }
 
-    if (efficiency >= 0.6 && cp <= 0.06) {
+    // 4. Surveillance – efficiency dominates
+    if (efficiency >= 0.58) {
+      return {
+        title: "Surveillance Drone",
+        icon: Video,
+        color: "from-emerald-500 to-green-600",
+        description:
+          "Higher aerodynamic efficiency makes this propeller suitable for long-endurance surveillance missions.",
+      };
+    }
+
+    // 5. Mapping – balanced case
+    if (efficiency >= 0.52 && cp <= 0.065) {
       return {
         title: "Mapping Drone",
         icon: Map,
         color: "from-sky-500 to-cyan-600",
         description:
-          "Balanced thrust and efficiency enable stable hovering for aerial mapping and surveying.",
+          "Balanced thrust and efficiency enable stable hovering for mapping and surveying tasks.",
       };
     }
 
+    // 6. General purpose – truly neutral case
     return {
-      title: "Racing / Performance Drone",
-      icon: Zap,
-      color: "from-red-500 to-orange-600",
+      title: "General Purpose UAV",
+      icon: Map,
+      color: "from-gray-500 to-slate-600",
       description:
-        "Performance-oriented characteristics prioritizing speed over endurance.",
+        "This configuration provides moderate performance suitable for general UAV applications.",
     };
   };
+
 
   /* ---------------- API Call ---------------- */
 
@@ -93,7 +111,7 @@ export default function PredictionPage() {
     setPrediction(null);
 
     try {
-      const response = await fetch("http://localhost:5000/predict", {
+      const response = await fetch("http://127.0.0.1:5000/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -110,13 +128,15 @@ export default function PredictionPage() {
       const recommendation = getDroneRecommendation(
         data.thrust_coefficient,
         data.power_coefficient,
-        data.efficiency
+        data.efficiency,              // ✅ normalized (0–1)
+        Number(formData.pitch),
+        Number(formData.advanceRatio)
       );
 
       setPrediction({
         thrust: data.thrust_coefficient,
         power: data.power_coefficient,
-        efficiency: data.efficiency,
+        efficiency: data.efficiency,  // ✅ keep raw
         recommendation,
       });
     } catch (error) {
@@ -144,7 +164,6 @@ export default function PredictionPage() {
           </p>
         </div>
 
-        {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
           {/* Input Card */}
@@ -255,14 +274,12 @@ export default function PredictionPage() {
                   />
                 </div>
 
-                {/* Info */}
                 <p className="text-sm text-gray-500 text-center">
                   Values are rounded for readability. Predictions are generated
                   using machine learning models trained on experimental UAV
                   propeller data.
                 </p>
 
-                {/* Recommendation */}
                 <DroneRecommendation {...prediction.recommendation} />
               </div>
             )}
