@@ -1,0 +1,21 @@
+# Python
+venv/
+venv_win/
+venv_mac/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large datasets
+*.csv
+*.xlsx
+
+# Env files
+.env
