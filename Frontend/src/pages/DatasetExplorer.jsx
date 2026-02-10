@@ -20,14 +20,15 @@ export default function DatasetExplorer() {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const API_BASE_URL = "https://uav-propeller-ml-project.onrender.com";
 
   /* ---------------- FETCH DATA ---------------- */
   useEffect(() => {
     setLoading(true);
     const apiUrl =
       activeTab === "experiment"
-        ? "http://127.0.0.1:5000/api/experiment"
-        : "http://127.0.0.1:5000/api/geometry";
+        ? `${API_BASE_URL}/api/experiment`
+        : `${API_BASE_URL}/api/geometry`;
 
     fetch(apiUrl)
       .then((res) => res.json())
