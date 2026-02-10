@@ -23,6 +23,7 @@ export default function PredictionPage() {
 
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
+  const API_BASE_URL = "https://uav-propeller-ml-project.onrender.com";
 
   /* ---------------- Drone Recommendation Logic ---------------- */
 
@@ -151,7 +152,7 @@ export default function PredictionPage() {
     setPrediction(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/predict", {
+      const response = await fetch(`${API_BASE_URL}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
