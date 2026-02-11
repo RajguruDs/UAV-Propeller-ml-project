@@ -69,16 +69,16 @@ def health_check():
 
 @app.route("/api/experiment", methods=["GET"])
 def get_experiment_data():
-    df = pd.read_csv(
-        os.path.join(BASE_DIR, "Data", "experiment_brand_diverse.csv")
+    df = pd.read_pickle(
+        os.path.join(BASE_DIR, "Data", "experiment_runtime.pkl")
     ).head(250)
     df = df.replace({np.nan: None})
     return jsonify(df.to_dict(orient="records"))
 
 @app.route("/api/geometry", methods=["GET"])
 def get_geometry_data():
-    df = pd.read_csv(
-        os.path.join(BASE_DIR, "Data", "geometry_brand_diverse.csv")
+    df = pd.read_pickle(
+        os.path.join(BASE_DIR, "Data", "geometry_runtime.pkl")
     ).head(250)
     return jsonify(df.to_dict(orient="records"))
 
