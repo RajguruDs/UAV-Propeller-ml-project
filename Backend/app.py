@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import mysql.connector
 import os
-
+import urllib.parse 
 # -------------------- BASE DIR --------------------
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -18,12 +18,21 @@ CORS(app)
 # -------------------- DATABASE CONNECTION --------------------
 
 def get_db_connection():
+    database_url = os.getenv("DATABASE_URL")
+
+    if not database_url:
+        raise Exception("DATABASE_URL not set in environment variables")
+
+    url = urllib.parse.urlparse(database_url)
+
     return mysql.connector.connect(
-        host=os.getenv("MYSQL_HOST"),
-        user=os.getenv("MYSQL_USER"),
-        password=os.getenv("MYSQL_PASSWORD"),
-        database=os.getenv("MYSQL_DB"),
-        port=int(os.getenv("MYSQL_PORT"))
+        host=url.hostname,
+        user=url.username,
+        password=url.password,
+        database=url.path[1:],  # remove leading '/'
+        port=url.port,
+        ssl_disabled=False,
+        ssl_verify_cert=False
     )
 
 # -------------------- LOAD MODELS --------------------
