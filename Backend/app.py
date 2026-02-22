@@ -3,9 +3,10 @@ from flask_cors import CORS
 import joblib
 import numpy as np
 import pandas as pd
-import mysql.connector
+import psycopg2
+import urllib.parse
 import os
-import urllib.parse 
+
 # -------------------- BASE DIR --------------------
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -21,18 +22,16 @@ def get_db_connection():
     database_url = os.getenv("DATABASE_URL")
 
     if not database_url:
-        raise Exception("DATABASE_URL not set in environment variables")
+        raise Exception("DATABASE_URL not set")
 
     url = urllib.parse.urlparse(database_url)
 
-    return mysql.connector.connect(
-        host=url.hostname,
+    return psycopg2.connect(
+        dbname=url.path[1:],
         user=url.username,
         password=url.password,
-        database=url.path[1:],  # remove leading '/'
-        port=url.port,
-        ssl_disabled=False,
-        ssl_verify_cert=False
+        host=url.hostname,
+        port=url.port
     )
 
 # -------------------- LOAD MODELS --------------------
@@ -150,16 +149,16 @@ def predict():
     cursor = db.cursor()
 
     insert_query = """
-        INSERT INTO prediction_logs (
-            blades,
-            diameter,
-            pitch,
-            advance_ratio,
-            thrust_coefficient,
-            power_coefficient,
-            efficiency,
-            drone_type
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO prediction_logs (
+        blades,
+        diameter,
+        pitch,
+        advance_ratio,
+        thrust_coefficient,
+        power_coefficient,
+        efficiency,
+        drone_type
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """
 
     values = (
