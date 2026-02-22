@@ -7,3 +7,4 @@ joblib
 xgboost
 gunicorn
 mysql-connector-python
+psycopg2-binary
