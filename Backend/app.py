@@ -4,7 +4,6 @@ import joblib
 import numpy as np
 import pandas as pd
 import psycopg2
-import urllib.parse
 import os
 
 # -------------------- BASE DIR --------------------
@@ -17,21 +16,10 @@ app = Flask(__name__)
 CORS(app)
 
 # -------------------- DATABASE CONNECTION --------------------
-
 def get_db_connection():
-    database_url = os.getenv("DATABASE_URL")
-
-    if not database_url:
-        raise Exception("DATABASE_URL not set")
-
-    url = urllib.parse.urlparse(database_url)
-
     return psycopg2.connect(
-        dbname=url.path[1:],
-        user=url.username,
-        password=url.password,
-        host=url.hostname,
-        port=url.port
+        os.getenv("DATABASE_URL"),
+        sslmode="require"
     )
 
 # -------------------- LOAD MODELS --------------------
