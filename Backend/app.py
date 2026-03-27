@@ -17,7 +17,8 @@ CORS(app)
 def get_db_connection():
     return psycopg2.connect(
         os.getenv("DATABASE_URL"),
-        sslmode="require"
+        sslmode="require",
+        connect_timeout=5   # 🔥 prevents hanging
     )
 
 # -------------------- LOAD MODELS --------------------
@@ -62,8 +63,10 @@ def experiment():
         df = pd.read_pickle(
             os.path.join(BASE_DIR, "Data", "experiment_runtime.pkl")
         ).head(250)
+
         df = df.replace({np.nan: None})
         return jsonify(df.to_dict(orient="records"))
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -74,12 +77,14 @@ def geometry():
         df = pd.read_pickle(
             os.path.join(BASE_DIR, "Data", "geometry_runtime.pkl")
         ).head(250)
+
         return jsonify(df.to_dict(orient="records"))
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-# -------------------- PREDICT --------------------
+# -------------------- PREDICTION --------------------
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
@@ -115,11 +120,12 @@ def predict():
             solidity
         ]])
 
+        # 🔥 MODEL PREDICTION
         y_pred_CT = float(model_CT.predict(X)[0])
         y_pred_CP = float(model_CP.predict(X)[0])
         y_pred_EF = float(model_EF.predict(X)[0])
 
-        # Drone type logic
+        # ---------------- DRONE LOGIC ----------------
         drone_type = "General Purpose UAV"
 
         if adv_ratio >= 0.7 and pitch >= 6.5:
@@ -135,19 +141,16 @@ def predict():
 
         # ---------------- DB INSERT (SAFE) ----------------
         try:
+            print("➡️ Attempting DB insert...")
+
             db = get_db_connection()
             cursor = db.cursor()
 
             cursor.execute("""
                 INSERT INTO prediction_logs (
-                    blades,
-                    diameter,
-                    pitch,
-                    advance_ratio,
-                    thrust_coefficient,
-                    power_coefficient,
-                    efficiency,
-                    drone_type
+                    blades, diameter, pitch, advance_ratio,
+                    thrust_coefficient, power_coefficient,
+                    efficiency, drone_type
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 blades,
@@ -164,9 +167,12 @@ def predict():
             cursor.close()
             db.close()
 
+            print("DB INSERT SUCCESS")
+
         except Exception as db_error:
             print("DB ERROR:", db_error)
 
+        # ALWAYS RETURN RESPONSE (IMPORTANT)
         return jsonify({
             "matched_brand": matched_row["propeller_brand"],
             "matched_diameter": float(matched_row["propeller_diameter"]),
