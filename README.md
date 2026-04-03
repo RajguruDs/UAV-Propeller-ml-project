@@ -7,6 +7,11 @@ The system focuses on improving **thrust, efficiency, and aerodynamic performanc
 
 ---
 
+## 🌐 Live Demo
+🔗 https://uav-propeller-ml-project.vercel.app/
+
+---
+
 ## 🎯 Objectives
 - Perform **data preprocessing and feature engineering** on UAV datasets  
 - Build ML models to predict:
@@ -135,40 +140,8 @@ The project uses **experimental and geometric datasets** containing:
 
 ### 5. Deployment
 - Flask API for predictions  
-- React frontend for UI  
+- React frontend hosted on Vercel  
 - Tableau dashboards  
-
----
-
-## 🚀 How to Run the Project
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/your-username/uav-propeller-analysis.git
-cd uav-propeller-analysis
-```
-
-### 2. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Run Backend
-```bash
-python app.py
-```
-
-### 4. Run Frontend
-```bash
-cd frontend
-npm install
-npm start
-```
-
----
-
-## 📸 Screenshots
-_Add screenshots of your project here (dashboard, prediction UI, results, etc.)_
 
 ---
 
